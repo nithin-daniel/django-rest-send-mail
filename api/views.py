@@ -2,6 +2,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+from django.core.mail import send_mail
 from rest_framework import status
 from .models import Student
 
@@ -9,23 +11,14 @@ from .models import Student
 class ValidStudent(APIView):
     def post(self,request):
         name = request.data.get('name')
-        # print(name)
-        # name_validate = Student.objects.get(name=name)
-        # email = name_validate.email
-        # validation = Student.objects.get(name=name)
-        # if  validation==True:
-        #     # name_validate = Student.objects.only('id').get(name=name).id
-        #     print("It is there")
-        #     # print(name_validate.email)
-        #     return Response(status=status.HTTP_200_OK)
-        # else:
-        #     print("Not there")
-        #     return Response(status=status.HTTP_404_NOT_FOUND)
-
         try:
             validation = Student.objects.get(name=name)
-            print(validation)
+            # print(validation.email) # It prints thw email
+            recipient_list = [validation.email]
+            subject = "Congratulations You are seleted "
+            message = "This is a dummy data"
+            email_from = settings.EMAIL_HOST_USER
+            send_mail(subject,message,email_from,recipient_list)
             return Response(status=status.HTTP_200_OK)
         except ObjectDoesNotExist:
-            print('not')
             return Response(status=status.HTTP_404_NOT_FOUND)
